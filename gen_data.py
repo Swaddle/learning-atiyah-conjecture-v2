@@ -1,4 +1,4 @@
-from learning_atiyah import gen_rand_sample_2d_data, encode
+from .utils import gen_rand_sample_2d_data, encode
 import torch 
 n = 4 
 

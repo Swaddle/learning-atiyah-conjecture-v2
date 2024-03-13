@@ -1,3 +1,17 @@
+from .poly import PolyM
+from functools import reduce
+from random import choice
+
+import torch
+from torch import argmax, cat, dot, empty, rand, stack
+
+
+# rounds a tensor to n decimal places
+def round_by(x, n):
+    x = (x * 10**n).round() / (10**n)
+    return x
+
+
 def gen_rand_sample_2d_data(n_points: int, round_by: int):
     # uniform in [0.00,0.99]
     p = (0.00 - 0.99) * rand(n_points, 2) + 0.99
@@ -53,6 +67,7 @@ def gen_rand_sample_2d_data(n_points: int, round_by: int):
     # coeff_tensors.append(coeffs)
     return p, v, dots
 
+
 # second experiment
 # range 0.00 -> 0.99
 # map to 1 -> 100
@@ -60,9 +75,11 @@ def gen_rand_sample_2d_data(n_points: int, round_by: int):
 # 103 to denote end of p / v / k
 # 104 -> 127 (0 indexed)
 
+
 SIGN_TOKEN = 102
 END_BLOCK_TOKEN = 103
 CLASS_START = 104
+
 
 def encode(p, v, k):
     encoded = []

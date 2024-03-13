@@ -341,8 +341,9 @@ if __name__ == '__main__':
     # sampling
     parser.add_argument('--top-k', type=int, default=-1, help="top-k for sampling, -1 means no top-k")
     parser.add_argument('--num-samples', type=int, default=10, help="number of samples to generate when using --sample-only")
+    
     parser.add_argument('--vocab-size', type=int, help="vocab size of training data")
-    parser.add_argument('--block-size', type=int, help="vocab size of training data")
+    parser.add_argument('--block-size', type=int, help="block size of training data")
 
     # model
     parser.add_argument('--n-layer', type=int, default=4, help="number of layers")
