@@ -337,13 +337,19 @@ if __name__ == '__main__':
     parser.add_argument('--max-steps', type=int, default=-1, help="max number of optimization steps to run for, or -1 for infinite.")
     parser.add_argument('--device', type=str, default='cpu', help="device to use for compute, examples: cpu|cuda|cuda:2|mps")
     parser.add_argument('--seed', type=int, default=3407, help="seed")
+    
     # sampling
     parser.add_argument('--top-k', type=int, default=-1, help="top-k for sampling, -1 means no top-k")
+    parser.add_argument('--num-samples', type=int, default=10, help="number of samples to generate when using --sample-only")
+    parser.add_argument('--vocab-size', type=int, help="vocab size of training data")
+    parser.add_argument('--block-size', type=int, help="vocab size of training data")
+
     # model
     parser.add_argument('--n-layer', type=int, default=4, help="number of layers")
     parser.add_argument('--n-head', type=int, default=4, help="number of heads (in a transformer)")
     parser.add_argument('--n-embd', type=int, default=64, help="number of feature channels in the model")
     parser.add_argument('--n-embd2', type=int, default=64, help="number of feature channels elsewhere in the model")
+    
     # optimization
     parser.add_argument('--batch-size', '-b', type=int, default=32, help="batch size during optimization")
     parser.add_argument('--learning-rate', '-l', type=float, default=5e-4, help="learning rate")
@@ -357,11 +363,16 @@ if __name__ == '__main__':
     os.makedirs(args.work_dir, exist_ok=True)
     writer = SummaryWriter(log_dir=args.work_dir)
 
-    # init datasets
-    train_dataset, test_dataset = create_datasets(args.input_file)
-    vocab_size = train_dataset.get_vocab_size()
-    block_size = train_dataset.get_output_length()
-    print(f"dataset determined that: {vocab_size=}, {block_size=}")
+    # only load the datateset in train mode
+    if args.sample_only:
+        block_size = args.block_size
+        vocab_size = args.vocab_size
+    else:
+        # init datasets
+        train_dataset, test_dataset = create_datasets(args.input_file)
+        vocab_size = train_dataset.get_vocab_size()
+        block_size = train_dataset.get_output_length()
+        print(f"dataset determined that: {vocab_size=}, {block_size=}")
 
     # init model
     config = ModelConfig(vocab_size=vocab_size, block_size=block_size,
@@ -375,8 +386,9 @@ if __name__ == '__main__':
     if args.resume or args.sample_only: # note: if we sample-only then we also assume we are resuming
         print("resuming from existing model in the workdir")
         model.load_state_dict(torch.load(os.path.join(args.work_dir, 'model.pt')))
+   
     if args.sample_only:
-        print_samples(num=50)
+        print_samples(num=args.num_samples)
         sys.exit()
 
     # init optimizer
